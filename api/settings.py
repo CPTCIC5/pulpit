@@ -206,7 +206,7 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     'https://kleenestar.vercel.app',
     'https://35.183.155.122',
-    'https://api.hiremod.io',
+    'https://podiam.app',
     'http://localhost:3000'
     #'35.183.134.254'
 ]
