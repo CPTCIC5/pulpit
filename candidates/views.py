@@ -14,7 +14,7 @@ class ResumeViewSet(viewsets.ModelViewSet):
     permission_classes= (permissions.IsAuthenticated,)
     serializer_class= ResumeSerializer
     queryset= Resume.objects.all()
-    #parser_classes = [MultiPartParser, FormParser, JSONParser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
     lookup_field = 'slug'  # Use slug instead of id for lookups
 
     def get_queryset(self):
@@ -53,10 +53,9 @@ class ResumeViewSet(viewsets.ModelViewSet):
         self.perform_destroy(instance)
         return Response(status=status.HTTP_200_OK)
     
-    @action(methods=("POST",), detail=True, url_path="create-notes") #parser_classes=[MultiPartParser, FormParser, JSONParser])
+    @action(methods=("POST",), detail=True, url_path="create-notes", parser_classes=[MultiPartParser, FormParser, JSONParser])
     def create_note(self, request, slug):
         print('efef')
-        print(request.content_type)
         get_resume = self.get_object()
         print(get_resume)
         serializer = CreateNoteSerializer(
