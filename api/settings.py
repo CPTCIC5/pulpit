@@ -73,15 +73,10 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_SAMESITE = 'None'  # Ensure this for cross-site requests
+CSRF_COOKIE_SAMESITE = 'None'
 CSRF_USE_SESSIONS = False
 CSRF_COOKIE_HTTPONLY = False
-CSRF_TRUSTED_ORIGINS = [
-    'https://podiam.app',
-    'https://35.183.155.122',
-    'http://localhost:3000',
-    'https://frontend-pulpit.vercel.app'
-]
+
 ROOT_URLCONF = 'api.urls'
 
 TEMPLATES = [
@@ -205,22 +200,25 @@ REST_FRAMEWORK = {
         )
     }
 
-
-
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = [
-    'https://35.183.155.122',
-    'https://podiam.app',
-    'http://localhost:3000',
-    'https://frontend-pulpit.vercel.app'
-]
 CORS_ALLOW_HEADERS = [
     'X-CSRFToken',  # Add any other headers you need to allow
     'Content-Type',  # Include Content-Type header
     'Accept',
     'Authorization',
 ]
-CSRF_COOKIE_DOMAIN = None  # This can help with cross-subdomain issues
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://podiam.app',
+    'https://35.183.155.122',
+    'http://localhost:3000',
+    'https://frontend-pulpit.vercel.app'
+]
+
+CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS
+CSRF_ALLOWED_ORIGINS = CORS_ALLOWED_ORIGINS
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 #CORS_ALLOW_ALL_ORIGINS = True
 
 # Default primary key field type
