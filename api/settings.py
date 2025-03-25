@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ['SECRET_KEY']
 DEBUG = True
 
-ALLOWED_HOSTS = ['*', '35.183.155.122']
+ALLOWED_HOSTS = ['*', '35.183.155.122', 'frontend-pulpit.vercel.app']
 
 
 # Application definition
@@ -71,8 +71,12 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
-CSRF_COOKIE_SECURE= True
-#CSRF_USE_SESSIONS = True
+
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
+CSRF_USE_SESSIONS = False
+CSRF_COOKIE_HTTPONLY = False
+
 ROOT_URLCONF = 'api.urls'
 
 TEMPLATES = [
@@ -200,13 +204,16 @@ REST_FRAMEWORK = {
 CORS_ALLOW_HEADERS = [
     'X-CSRFToken',  # Add any other headers you need to allow
     'Content-Type',  # Include Content-Type header
+    'Accept',
+    'Authorization',
 ]
 CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS= [
     'https://35.183.155.122',
     'https://podiam.app',
-    'http://localhost:3000'
+    'http://localhost:3000',
+    'https://frontend-pulpit.vercel.app'
 ]
 
 CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS
@@ -218,7 +225,6 @@ CORS_ALLOW_CREDENTIALS = True
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 SITE_ID = 1
 
 HEADLESS_ONLY = True
