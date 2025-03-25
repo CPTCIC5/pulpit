@@ -76,8 +76,12 @@ CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'None'  # Ensure this for cross-site requests
 CSRF_USE_SESSIONS = False
 CSRF_COOKIE_HTTPONLY = False
-CSRF_TRUSTED_ORIGINS = ['*']
-CORS_ALLOW_ALL_ORIGINS = True
+CSRF_TRUSTED_ORIGINS = [
+    'https://podiam.app',
+    'https://35.183.155.122',
+    'http://localhost:3000',
+    'https://frontend-pulpit.vercel.app'
+]
 ROOT_URLCONF = 'api.urls'
 
 TEMPLATES = [
