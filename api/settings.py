@@ -19,9 +19,10 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
 ]
 
-# Security settings for SSL/HTTPS
+# Security settings for SSL/HTTPS with nginx
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = False
+USE_X_FORWARDED_HOST = True  # Add this for nginx proxy compatibility
 
 
 # Application definition
@@ -61,7 +62,7 @@ SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 3600000
-SESSION_COOKIE_SAMESITE = None
+SESSION_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SECURE = True
 
 MIDDLEWARE = [
@@ -84,7 +85,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_SAMESITE = None
+CSRF_COOKIE_SAMESITE = 'None'
 CSRF_USE_SESSIONS = False
 CSRF_COOKIE_HTTPONLY = False
 
@@ -244,8 +245,6 @@ CORS_ALLOW_HEADERS = [
 
 CORS_EXPOSE_HEADERS = ['content-type', 'x-csrftoken']
 
-CORS_ALLOW_CREDENTIALS = True
-
 CORS_ALLOWED_ORIGINS = [
     'https://podiam.app',
     'https://www.podiam.app',
@@ -256,9 +255,16 @@ CORS_ALLOWED_ORIGINS = [
     'https://frontend-pulpit.vercel.app'
 ]
 
-# This must be False for security
-CORS_ALLOW_ALL_ORIGINS = False
+# For some environments, this may be necessary
+CORS_ORIGIN_WHITELIST = CORS_ALLOWED_ORIGINS
 
+# For browsers that don't support CORS preflight requests
+CORS_ALLOW_ALL_ORIGINS = True  # Changed based on reference project
+
+# Keep it true for authentication to work properly
+CORS_ALLOW_CREDENTIALS = True
+
+# Set CSRF allowed origins same as CORS
 CSRF_ALLOWED_ORIGINS = CORS_ALLOWED_ORIGINS
 
 # Default primary key field type
