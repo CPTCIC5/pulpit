@@ -25,6 +25,7 @@ urlpatterns = [
     path('api/channels/', include('candidates.urls')),
     path('api/auth/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
     path("_allauth/", include("allauth.headless.urls")),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
