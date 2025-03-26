@@ -10,7 +10,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ['SECRET_KEY']
 DEBUG = True
 
-ALLOWED_HOSTS = ['*', '35.183.155.122', 'frontend-pulpit.vercel.app']
+ALLOWED_HOSTS = [
+    'podiam.app',
+    'www.podiam.app',
+    '35.183.155.122',
+    'frontend-pulpit.vercel.app',
+    'localhost',
+    '127.0.0.1',
+]
+
+# Security settings for SSL/HTTPS
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = False
 
 
 # Application definition
@@ -50,7 +61,7 @@ SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 3600000
-SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = None
 SESSION_COOKIE_SECURE = True
 
 MIDDLEWARE = [
@@ -73,9 +84,20 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SAMESITE = None
 CSRF_USE_SESSIONS = False
 CSRF_COOKIE_HTTPONLY = False
+
+# Use specific domains instead of wildcard
+CSRF_TRUSTED_ORIGINS = [
+    'https://podiam.app',
+    'https://www.podiam.app',
+    'http://podiam.app',
+    'http://www.podiam.app',
+    'https://35.183.155.122',
+    'http://localhost:3000',
+    'https://frontend-pulpit.vercel.app'
+]
 
 ROOT_URLCONF = 'api.urls'
 
@@ -194,32 +216,50 @@ REST_FRAMEWORK = {
             'rest_framework.permissions.IsAuthenticated',
         ],
         'DEFAULT_AUTHENTICATION_CLASSES': (
-            #'rest_framework.authentication.BasicAuthentication',  # enables simple command line authentication
-            'rest_framework.authentication.SessionAuthentication',
             'rest_framework.authentication.TokenAuthentication',
-        )
+            'rest_framework.authentication.SessionAuthentication',
+        ),
+        'DEFAULT_PARSER_CLASSES': [
+            'rest_framework.parsers.JSONParser',
+            'rest_framework.parsers.FormParser',
+            'rest_framework.parsers.MultiPartParser',
+        ],
+        'DEFAULT_RENDERER_CLASSES': [
+            'rest_framework.renderers.JSONRenderer',
+            'rest_framework.renderers.BrowsableAPIRenderer',
+        ],
     }
 
 CORS_ALLOW_HEADERS = [
-    'X-CSRFToken',  # Add any other headers you need to allow
-    'Content-Type',  # Include Content-Type header
-    'Accept',
-    'Authorization',
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
 ]
+
+CORS_EXPOSE_HEADERS = ['content-type', 'x-csrftoken']
+
 CORS_ALLOW_CREDENTIALS = True
 
-CSRF_TRUSTED_ORIGINS = [
+CORS_ALLOWED_ORIGINS = [
     'https://podiam.app',
+    'https://www.podiam.app',
+    'http://podiam.app',
+    'http://www.podiam.app',
     'https://35.183.155.122',
     'http://localhost:3000',
     'https://frontend-pulpit.vercel.app'
 ]
 
-CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS
+# This must be False for security
+CORS_ALLOW_ALL_ORIGINS = False
+
 CSRF_ALLOWED_ORIGINS = CORS_ALLOWED_ORIGINS
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
-#CORS_ALLOW_ALL_ORIGINS = True
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
