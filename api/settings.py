@@ -11,6 +11,7 @@ SECRET_KEY = os.environ['SECRET_KEY']
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    '*',
     'podiam.app',
     'www.podiam.app',
     '35.183.155.122',
@@ -18,11 +19,6 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
 ]
-
-# Security settings for SSL/HTTPS with nginx
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = False
-USE_X_FORWARDED_HOST = True  # Add this for nginx proxy compatibility
 
 
 # Application definition
@@ -90,15 +86,6 @@ CSRF_USE_SESSIONS = False
 CSRF_COOKIE_HTTPONLY = False
 
 # Use specific domains instead of wildcard
-CSRF_TRUSTED_ORIGINS = [
-    'https://podiam.app',
-    'https://www.podiam.app',
-    'http://podiam.app',
-    'http://www.podiam.app',
-    'https://35.183.155.122',
-    'http://localhost:3000',
-    'https://frontend-pulpit.vercel.app'
-]
 
 ROOT_URLCONF = 'api.urls'
 
@@ -232,22 +219,16 @@ REST_FRAMEWORK = {
     }
 
 CORS_ALLOW_HEADERS = [
-    'accept',
-    'accept-encoding',
-    'authorization',
-    'content-type',
-    'dnt',
-    'origin',
-    'user-agent',
-    'x-csrftoken',
-    'x-requested-with',
+    'X-CSRFToken',  # Add any other headers you need to allow
+    'Content-Type',  # Include Content-Type header
+    'Accept',
+    'Authorization',
 ]
+CORS_ALLOW_CREDENTIALS = True
 
-CORS_EXPOSE_HEADERS = ['content-type', 'x-csrftoken']
 
-CORS_ALLOWED_ORIGINS = [
+CSRF_TRUSTED_ORIGINS = [
     'https://frontend-pulpit.vercel.app',
-    'https://frontend-pulpit.vercel.app/',
     'https://podiam.app',
     'https://www.podiam.app',
     'http://podiam.app',
@@ -255,28 +236,11 @@ CORS_ALLOWED_ORIGINS = [
     'https://35.183.155.122',
     'http://localhost:3000'
 ]
-
-# For some environments, this may be necessary
-CORS_ORIGIN_WHITELIST = CORS_ALLOWED_ORIGINS
-
-# For browsers that don't support CORS preflight requests
-CORS_ALLOW_ALL_ORIGINS = False  # Changed from True to False
-
-# Keep it true for authentication to work properly
+CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS
+CSRF_ALLOWED_ORIGINS = CORS_ALLOWED_ORIGINS
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-# Additional CORS settings for handling preflight requests properly
-CORS_ALLOW_METHODS = [
-    'DELETE',
-    'GET',
-    'OPTIONS',
-    'PATCH',
-    'POST',
-    'PUT',
-]
-
-# Set CSRF allowed origins same as CORS
-CSRF_ALLOWED_ORIGINS = CORS_ALLOWED_ORIGINS
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
