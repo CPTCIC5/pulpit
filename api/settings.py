@@ -260,10 +260,20 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ORIGIN_WHITELIST = CORS_ALLOWED_ORIGINS
 
 # For browsers that don't support CORS preflight requests
-CORS_ALLOW_ALL_ORIGINS = True  # Changed based on reference project
+CORS_ALLOW_ALL_ORIGINS = False  # Changed from True to False
 
 # Keep it true for authentication to work properly
 CORS_ALLOW_CREDENTIALS = True
+
+# Additional CORS settings for handling preflight requests properly
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
 
 # Set CSRF allowed origins same as CORS
 CSRF_ALLOWED_ORIGINS = CORS_ALLOWED_ORIGINS
