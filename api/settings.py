@@ -246,13 +246,14 @@ CORS_ALLOW_HEADERS = [
 CORS_EXPOSE_HEADERS = ['content-type', 'x-csrftoken']
 
 CORS_ALLOWED_ORIGINS = [
+    'https://frontend-pulpit.vercel.app',
+    'https://frontend-pulpit.vercel.app/',
     'https://podiam.app',
     'https://www.podiam.app',
     'http://podiam.app',
     'http://www.podiam.app',
     'https://35.183.155.122',
-    'http://localhost:3000',
-    'https://frontend-pulpit.vercel.app'
+    'http://localhost:3000'
 ]
 
 # For some environments, this may be necessary
