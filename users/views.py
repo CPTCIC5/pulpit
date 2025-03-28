@@ -39,7 +39,7 @@ class LoginView(APIView):
                 {"detail": "Invalid Credentials"},
                 status=status.HTTP_400_BAD_REQUEST,
             ) 
-            response.set_cookie('loggedIn', 'false', httponly=True, samesite="None", secure=True)
+            response.set_cookie('loggedIn', 'false', httponly=True)
             return response
         
         if not user.is_active:

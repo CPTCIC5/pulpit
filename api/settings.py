@@ -81,9 +81,9 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_SAMESITE = 'None'
-CSRF_USE_SESSIONS = False
-CSRF_COOKIE_HTTPONLY = False
+#CSRF_COOKIE_SAMESITE = 'None'
+#CSRF_USE_SESSIONS = False
+#CSRF_COOKIE_HTTPONLY = False
 
 # Use specific domains instead of wildcard
 
@@ -221,13 +221,11 @@ REST_FRAMEWORK = {
 CORS_ALLOW_HEADERS = [
     'X-CSRFToken',  # Add any other headers you need to allow
     'Content-Type',  # Include Content-Type header
-    'Accept',
-    'Authorization',
 ]
 CORS_ALLOW_CREDENTIALS = True
 
 
-CSRF_TRUSTED_ORIGINS = [
+CSRF_TRUSTED_ORIGINS= [
     'https://frontend-pulpit.vercel.app',
     'https://podiam.app',
     'https://www.podiam.app',
