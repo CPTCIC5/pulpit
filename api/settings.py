@@ -60,6 +60,11 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 3600000
 SESSION_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_DOMAIN = None
+
+CSRF_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_DOMAIN = None
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -79,11 +84,6 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
-
-CSRF_COOKIE_SECURE = True
-#CSRF_COOKIE_SAMESITE = 'None'
-#CSRF_USE_SESSIONS = False
-#CSRF_COOKIE_HTTPONLY = False
 
 # Use specific domains instead of wildcard
 
@@ -236,9 +236,12 @@ CSRF_TRUSTED_ORIGINS= [
 ]
 CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS
 CSRF_ALLOWED_ORIGINS = CORS_ALLOWED_ORIGINS
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
 
+# Add explicit CORS cookie settings
+CORS_ALLOW_COOKIES = True
+CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

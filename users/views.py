@@ -20,7 +20,7 @@ class SignupView(APIView):
 
         # Return the response
         response = Response(status=status.HTTP_201_CREATED)
-        response.set_cookie('loggedIn', 'true', httponly=True, samesite='None', secure=True)      
+        response.set_cookie('loggedIn', 'true', httponly=True, secure=True, samesite='None')      
         return response
 
 
@@ -39,20 +39,20 @@ class LoginView(APIView):
                 {"detail": "Invalid Credentials"},
                 status=status.HTTP_400_BAD_REQUEST,
             ) 
-            response.set_cookie('loggedIn', 'false', httponly=True)
+            response.set_cookie('loggedIn', 'false', httponly=True, secure=True, samesite='None')
             return response
         
         if not user.is_active:
             response = Response(
                 {"detail": "Account disabled"}, status=status.HTTP_401_UNAUTHORIZED
             )
-            response.set_cookie('loggedIn', 'false', httponly=True)
+            response.set_cookie('loggedIn', 'false', httponly=True, secure=True, samesite='None')
             return response
         
         login(request, user)
 
         response = Response(status=status.HTTP_200_OK)
-        response.set_cookie('loggedIn', 'true', httponly=True)
+        response.set_cookie('loggedIn', 'true', httponly=True, secure=True, samesite='None')
 
         return response
 
@@ -63,7 +63,7 @@ class LogoutView(APIView):
         logout(request)
 
         response = Response(status=status.HTTP_200_OK)
-        response.delete_cookie('loggedIn')
+        response.delete_cookie('loggedIn', samesite='None')
         return response
     
 class UserViewSet(viewsets.ModelViewSet):
