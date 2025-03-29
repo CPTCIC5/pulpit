@@ -60,11 +60,11 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 3600000
 SESSION_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SECURE = True
-SESSION_COOKIE_DOMAIN = None
+SESSION_COOKIE_DOMAIN = "frontend-pulpit.vercel.app"
 
 CSRF_COOKIE_SAMESITE = 'None'
 CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_DOMAIN = None
+CSRF_COOKIE_DOMAIN = "frontend-pulpit.vercel.app"
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
