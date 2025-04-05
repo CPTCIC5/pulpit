@@ -81,7 +81,9 @@ def process_resume(resume_slug: str, file_path: str) -> None:
     extracted_text = extract_text_from_pdf(file_path)
     structured_data = extract_structured_data(extracted_text)
     data = structured_data.model_dump_json()
+    print(resume_slug, 'slug')
     resume = Resume.objects.get(slug=resume_slug)
+    print(resume, 'xyz')
     print(resume)
     resume.resume_data = data
     resume.save()

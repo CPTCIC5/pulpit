@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Resume, Notes
 from .tasks import process_resume
 from django.core.files.storage import FileSystemStorage
+from django.db import transaction
 
 
 class ResumeCreateSerializer(serializers.ModelSerializer):
@@ -10,17 +11,19 @@ class ResumeCreateSerializer(serializers.ModelSerializer):
         fields= ['title', 'resume_file', 'template_type']
     
     def create(self, validated_data):
-        inst = super().create(validated_data)
-        
-        if resume_file := validated_data.get("resume_file"):
-            fs = FileSystemStorage()
-            filename = fs.save(resume_file.name, resume_file)
-            file_path = fs.path(filename)
-            print("filepath------", file_path)
-            print(inst.slug)
-            process_resume.delay(inst.slug, file_path)
+        with transaction.atomic():
+            inst = super().create(validated_data)
+            
+            if resume_file := validated_data.get("resume_file"):
+                fs = FileSystemStorage()
+                filename = fs.save(resume_file.name, resume_file)
+                file_path = fs.path(filename)
+                print("filepath------", file_path)
+                
+                # Force the transaction to commit before sending to Celery
+                transaction.on_commit(lambda: process_resume.delay(inst.slug, file_path))
 
-        return inst
+            return inst
 
 
 class NoteSerializer(serializers.ModelSerializer):
