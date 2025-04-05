@@ -3,6 +3,8 @@ from .models import Resume, Notes
 from .tasks import process_resume
 from django.core.files.storage import FileSystemStorage
 from django.db import transaction
+from django.utils.text import slugify
+import uuid
 
 
 class ResumeCreateSerializer(serializers.ModelSerializer):
@@ -12,13 +14,27 @@ class ResumeCreateSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         with transaction.atomic():
+            # Generate slug explicitly before saving
+            title = validated_data.get('title', '')
+            base_slug = slugify(title)
+            unique_id = str(uuid.uuid4())[:8]
+            slug = f"{base_slug}-{unique_id}"
+            
+            # Set slug in validated data
+            validated_data['slug'] = slug
+            
+            # Create instance
             inst = super().create(validated_data)
+            
+            # Make sure the slug is persisted
+            inst.save()
             
             if resume_file := validated_data.get("resume_file"):
                 fs = FileSystemStorage()
                 filename = fs.save(resume_file.name, resume_file)
                 file_path = fs.path(filename)
                 print("filepath------", file_path)
+                print("slug being used for task------", inst.slug)
                 
                 # Force the transaction to commit before sending to Celery
                 transaction.on_commit(lambda: process_resume.delay(inst.slug, file_path))
