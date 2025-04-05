@@ -76,31 +76,12 @@ def extract_text_from_pdf(pdf_path):
     return text
 
 
-@shared_task(bind=True, max_retries=3)
-def process_resume(self, resume_slug: str, file_path: str) -> None:
-    try:
-        extracted_text = extract_text_from_pdf(file_path)
-        structured_data = extract_structured_data(extracted_text)
-        data = structured_data.model_dump_json()
-        
-        from django.db import transaction
-        
-        # Wrap database operations in a transaction
-        with transaction.atomic():
-            # Add a retry mechanism in case the Resume doesn't exist yet
-            try:
-                resume = Resume.objects.get(slug=resume_slug)
-                print(resume)
-                resume.resume_data = data
-                resume.save()
-            except Resume.DoesNotExist as e:
-                # Retry with exponential backoff if the resume doesn't exist yet
-                retry_countdown = 2 ** self.request.retries
-                print(f"Resume with slug {resume_slug} not found, retrying in {retry_countdown} seconds...")
-                self.retry(exc=e, countdown=retry_countdown)
-                
-    except Exception as e:
-        print(f"Error processing resume: {e}")
-        # Retry with exponential backoff for any other exceptions
-        retry_countdown = 2 ** self.request.retries
-        self.retry(exc=e, countdown=retry_countdown)
+@shared_task
+def process_resume(resume_slug: str, file_path: str) -> None:
+    extracted_text = extract_text_from_pdf(file_path)
+    structured_data = extract_structured_data(extracted_text)
+    data = structured_data.model_dump_json()
+    resume = Resume.objects.get(slug=resume_slug)
+    print(resume)
+    resume.resume_data = data
+    resume.save()
