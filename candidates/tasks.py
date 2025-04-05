@@ -7,6 +7,7 @@ from .pdf_extractor import PersonalInfo,Info,Skill,WorkEXP,Project
 from marker.models import create_model_dict
 from marker.converters.pdf import PdfConverter
 from marker.output import text_from_rendered
+from django.shortcuts import get_object_or_404
 
 
 load_dotenv()
@@ -76,49 +77,12 @@ def extract_text_from_pdf(pdf_path):
     return text
 
 
-@shared_task(bind=True, max_retries=5)
-def process_resume(self, resume_id: str, file_path: str) -> None:
-    print(f"=== TASK STARTING: process_resume for ID: {resume_id} ===")
-    print(f"Looking for Resume with ID: {resume_id}")
+@shared_task
+def process_resume(resume_id: int, file_path: str) -> None:
+    extracted_text = extract_text_from_pdf(file_path)
+    structured_data = extract_structured_data(extracted_text)
+    data = structured_data.model_dump_json()
     
-    # Debug: List all available Resume objects
-    all_resumes = Resume.objects.all()
-    print(f"Total Resume objects in DB: {all_resumes.count()}")
-    for resume in all_resumes:
-        print(f"  - Found Resume: id={resume.id}, slug={resume.slug}, title={resume.title}")
-    
-    try:
-        extracted_text = extract_text_from_pdf(file_path)
-        structured_data = extract_structured_data(extracted_text)
-        data = structured_data.model_dump_json()
-        
-        # Try to get the resume with exponential backoff
-        try:
-            print(f"Attempting to fetch Resume with ID '{resume_id}'...")
-            resume = Resume.objects.get(id=resume_id)
-            print(f"SUCCESS! Found resume: id={resume.id}, title={resume.title}")
-            resume.resume_data = data
-            resume.save()
-            print(f"Successfully updated resume_data for Resume ID {resume_id}")
-        except Resume.DoesNotExist as e:
-            # If the resume doesn't exist, retry after a delay
-            retry_in = 2 ** self.request.retries  # Exponential backoff: 1, 2, 4, 8, 16 seconds
-            print(f"ERROR: Resume with ID '{resume_id}' not found. Retrying in {retry_in} seconds. Attempt {self.request.retries + 1}/5")
-            
-            # Try to diagnose the issue
-            print("===== DATABASE DEBUG INFORMATION =====")
-            print(f"ID we're looking for: '{resume_id}'")
-            print(f"Total Resume objects: {Resume.objects.count()}")
-            print("Existing Resume IDs:")
-            for r in Resume.objects.all():
-                print(f"  - ID: {r.id}, Slug: '{r.slug}' (Title: {r.title})")
-            print("=====================================")
-            
-            raise self.retry(exc=e, countdown=retry_in)
-            
-    except Exception as e:
-        print(f"CRITICAL ERROR processing resume: {str(e)}")
-        # Re-raise the exception to mark the task as failed
-        raise
-    
-    print(f"=== TASK COMPLETED: process_resume for ID: {resume_id} ===")
+    resume = get_object_or_404(Resume, id=resume_id)
+    resume.resume_data = data
+    resume.save(update_fields=['resume_data'])

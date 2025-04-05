@@ -232,7 +232,8 @@ CSRF_TRUSTED_ORIGINS= [
     'http://podiam.app',
     'http://www.podiam.app',
     'https://35.183.155.122',
-    'http://localhost:3000'
+    'http://localhost:3000',
+    'http://127.0.0.1'
 ]
 CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS
 CSRF_ALLOWED_ORIGINS = CORS_ALLOWED_ORIGINS
