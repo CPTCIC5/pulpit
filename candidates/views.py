@@ -31,11 +31,12 @@ class ResumeViewSet(viewsets.ModelViewSet):
         
     
     def create(self, request, *args, **kwargs):
-        serializer=  ResumeCreateSerializer(
-            data= request.data
+        serializer = ResumeCreateSerializer(
+            data=request.data,
+            context={'request': request}  # Pass request in context
         )
         serializer.is_valid(raise_exception=True)
-        serializer.save(user= self.request.user)
+        instance = serializer.save()  # The user is now handled in the serializer
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
     """

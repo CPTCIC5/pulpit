@@ -11,16 +11,30 @@ class ResumeCreateSerializer(serializers.ModelSerializer):
         fields= ['title', 'resume_file', 'template_type']
     
     def create(self, validated_data):
-        inst = super().create(validated_data)
+        # Get the user from context
+        user = self.context['request'].user if 'request' in self.context else None
         
-        if resume_file := validated_data.get("resume_file"):
-            fs = FileSystemStorage()
-            filename = fs.save(resume_file.name, resume_file)
-            file_path = fs.path(filename)
-            print("filepath------", file_path)
-            # Ensure task is executed only after the transaction is committed
-            transaction.on_commit(lambda: process_resume.delay(inst.slug, file_path))
-
+        # Add user to validated data
+        if user and 'user' not in validated_data:
+            validated_data['user'] = user
+            
+        # Create the instance inside a transaction
+        with transaction.atomic():
+            inst = super().create(validated_data)
+            
+            # Save the instance to ensure it's in the database
+            inst.save()
+            
+            if resume_file := validated_data.get("resume_file"):
+                fs = FileSystemStorage()
+                filename = fs.save(resume_file.name, resume_file)
+                file_path = fs.path(filename)
+                print("filepath------", file_path)
+                print("resume_slug---", inst.slug)
+                
+                # Use on_commit to ensure the task is only queued after the transaction completes
+                transaction.on_commit(lambda: process_resume.delay(inst.slug, file_path))
+            
         return inst
 
 

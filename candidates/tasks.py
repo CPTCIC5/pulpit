@@ -76,12 +76,26 @@ def extract_text_from_pdf(pdf_path):
     return text
 
 
-@shared_task
-def process_resume(resume_slug: str, file_path: str) -> None:
-    extracted_text = extract_text_from_pdf(file_path)
-    structured_data = extract_structured_data(extracted_text)
-    data = structured_data.model_dump_json()
-    resume = Resume.objects.get(slug=resume_slug)
-    print(resume)
-    resume.resume_data = data
-    resume.save()
+@shared_task(bind=True, max_retries=5)
+def process_resume(self, resume_slug: str, file_path: str) -> None:
+    try:
+        extracted_text = extract_text_from_pdf(file_path)
+        structured_data = extract_structured_data(extracted_text)
+        data = structured_data.model_dump_json()
+        
+        # Try to get the resume with exponential backoff
+        try:
+            resume = Resume.objects.get(slug=resume_slug)
+            print(f"Found resume with slug: {resume_slug}")
+            resume.resume_data = data
+            resume.save()
+        except Resume.DoesNotExist as e:
+            # If the resume doesn't exist, retry after a delay
+            retry_in = 2 ** self.request.retries  # Exponential backoff: 1, 2, 4, 8, 16 seconds
+            print(f"Resume with slug {resume_slug} not found. Retrying in {retry_in} seconds. Attempt {self.request.retries + 1}/5")
+            raise self.retry(exc=e, countdown=retry_in)
+            
+    except Exception as e:
+        print(f"Error processing resume: {str(e)}")
+        # Re-raise the exception to mark the task as failed
+        raise
