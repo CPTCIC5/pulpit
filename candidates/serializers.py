@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import Resume, Notes
 from .tasks import process_resume
 from django.core.files.storage import FileSystemStorage
+from django.db import models
+from django.db import transaction
 
 
 class ResumeCreateSerializer(serializers.ModelSerializer):
@@ -17,7 +19,12 @@ class ResumeCreateSerializer(serializers.ModelSerializer):
             filename = fs.save(resume_file.name, resume_file)
             file_path = fs.path(filename)
             print("filepath------", file_path)
-            process_resume.delay(inst.slug, file_path)
+            
+            # Use transaction.on_commit to ensure the task is scheduled after
+            # the transaction is committed to the database
+            transaction.on_commit(
+                lambda: process_resume.delay(inst.slug, file_path)
+            )
 
         return inst
 
