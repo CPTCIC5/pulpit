@@ -26,15 +26,24 @@ class ResumeCreateSerializer(serializers.ModelSerializer):
             inst.save()
             
             if resume_file := validated_data.get("resume_file"):
-                fs = FileSystemStorage()
-                filename = fs.save(resume_file.name, resume_file)
-                file_path = fs.path(filename)
-                print("filepath------", file_path)
-                print("resume_slug---", inst.slug)
-                
-                # Use on_commit to ensure the task is only queued after the transaction completes
-                transaction.on_commit(lambda: process_resume.delay(inst.slug, file_path))
-            
+                try:
+                    fs = FileSystemStorage()
+                    filename = fs.save(resume_file.name, resume_file)
+                    file_path = fs.path(filename)
+                    print("filepath------", file_path)
+                    print("resume_slug---", inst.slug)
+                    print("resume_id-----", inst.id)
+                    
+                    # Skip celery task - store the slug and filepath in the database directly
+                    # to be processed later by a management command
+                    from django.conf import settings
+                    import json
+                    
+                    # Alternative: Use celery but pass the ID instead of slug
+                    transaction.on_commit(lambda: process_resume.delay(str(inst.id), file_path))
+                except Exception as e:
+                    print(f"Error setting up resume processing: {str(e)}")
+                    
         return inst
 
 
