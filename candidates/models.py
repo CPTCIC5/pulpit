@@ -35,28 +35,12 @@ class Resume(models.Model):
         return notes
 
     def save(self, *args, **kwargs):
-        is_new = self.pk is None
-        
         if not self.slug:
             # Create a unique slug based on title and a random string
             base_slug = slugify(self.title)
             unique_id = str(uuid.uuid4())[:8]  # Use first 8 chars of UUID
             self.slug = f"{base_slug}-{unique_id}"
-            
         super().save(*args, **kwargs)
-        
-        # Process the resume file after the instance is saved to the database
-        if is_new and self.resume_file:
-            from django.core.files.storage import FileSystemStorage
-            from .tasks import process_resume
-            
-            fs = FileSystemStorage()
-            # Use the actual saved file path
-            file_path = fs.path(self.resume_file.name)
-            
-            # Process the resume in a separate task
-            # We pass the instance ID instead of slug to ensure we can find it
-            process_resume.delay(self.id, file_path)
     
     def __str__(self): 
         return f"Candidate {self.title}"

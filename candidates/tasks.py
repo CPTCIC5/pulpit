@@ -7,7 +7,6 @@ from .pdf_extractor import PersonalInfo,Info,Skill,WorkEXP,Project
 from marker.models import create_model_dict
 from marker.converters.pdf import PdfConverter
 from marker.output import text_from_rendered
-from django.shortcuts import get_object_or_404
 
 
 load_dotenv()
@@ -78,11 +77,11 @@ def extract_text_from_pdf(pdf_path):
 
 
 @shared_task
-def process_resume(resume_id: int, file_path: str) -> None:
+def process_resume(resume_slug: str, file_path: str) -> None:
     extracted_text = extract_text_from_pdf(file_path)
     structured_data = extract_structured_data(extracted_text)
     data = structured_data.model_dump_json()
-    
-    resume = get_object_or_404(Resume, id=resume_id)
+    resume = Resume.objects.get(slug=resume_slug)
+    print(resume)
     resume.resume_data = data
-    resume.save(update_fields=['resume_data'])
+    resume.save()
