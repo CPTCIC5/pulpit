@@ -1,25 +1,12 @@
 from rest_framework import serializers
 from .models import Resume, Notes
-from .tasks import process_resume
-from django.core.files.storage import default_storage
+
 
 
 class ResumeCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model= Resume
         fields= ['title', 'resume_file', 'template_type']
-    
-    def create(self, validated_data):
-        inst = super().create(validated_data)
-        
-        if resume_file := validated_data.get("resume_file"):
-            filename = default_storage.save(resume_file.name, resume_file)
-            file_path = default_storage.path(filename)
-            print("filepath------", file_path)
-            print(inst.slug)
-            process_resume.delay(inst.slug, file_path)
-
-        return inst
 
 
 class NoteSerializer(serializers.ModelSerializer):

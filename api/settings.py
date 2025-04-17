@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.twitter',
-    "django_celery_results"
 ]
 
 
@@ -277,21 +276,3 @@ HEADLESS_FRONTEND_URLS = {
     "account_signup": "/account/signup",
     "socialaccount_login_error": "/account/provider/callback",
 }
-
-
-# ---------------------------------------------REDIS SETTINGS------------------------------------------------------
-#REDIS_HOST = "127.0.0.1"
-#REDIS_PORT = 6379
-#REDIS_DB = 0
-
-
-#CELERY_BROKER_URL = f"redis://:{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
-CELERY_BROKER_URL = "redis://localhost:6379/0"
-
-CELERY_RESULT_BACKEND = "django-db"
-CELERY_ACCEPT_CONTENT = ["application/json"]
-CELERY_TASK_SERIALIZER = "json"
-CELERY_RESULT_SERIALIZER = "json"
-CELERY_TIMEZONE = "Asia/Kolkata" #change timezone based on server time
-USE_TZ = True
-CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"

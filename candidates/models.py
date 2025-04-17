@@ -1,7 +1,7 @@
 from django.db import models 
 from users.models import User 
 from django.shortcuts  import get_object_or_404
-from django.core.validators import FileExtensionValidator,validate_image_file_extension
+from django.core.validators import FileExtensionValidator
 from openai import OpenAI
 from dotenv import load_dotenv
 from django.utils.text import slugify
@@ -20,12 +20,19 @@ RESUME_TYPE= (
 )
 
 class Resume(models.Model):
+    PARSING_STATUS = (
+        ('not_parsed', 'Not Parsed'),
+        ('parsing', 'Parsing in Progress'),
+        ('parsed', 'Parsed Successfully'),
+        ('failed', 'Parsing Failed'),
+    )
     user= models.ForeignKey(User, on_delete=models.CASCADE)
     template_type= models.IntegerField(choices=RESUME_TYPE, blank=True, null=True)
     title= models.CharField(max_length=100) 
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     resume_file = models.FileField(upload_to='Candidates-Resume', validators=[FileExtensionValidator(allowed_extensions=['pdf'])])
     resume_data= models.JSONField(blank=True, null=True) 
+    parsing_status = models.CharField(max_length=20, choices=PARSING_STATUS, default='not_parsed')
     views= models.IntegerField(default=0) 
     created_at= models.DateTimeField(auto_now_add=True) 
 
