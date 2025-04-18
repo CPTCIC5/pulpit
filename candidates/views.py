@@ -82,20 +82,14 @@ class ResumeViewSet(viewsets.ModelViewSet):
             instance.parsing_status = 'parsing'
             instance.save(update_fields=['parsing_status'])
             
-            # Get the file path or URL depending on storage backend
-            try:
-                # For local storage
-                resume_url = default_storage.path(instance.resume_file.name)
-            except NotImplementedError:
-                # For S3 or other remote storage
-                print('eewwd')
-                resume_url = default_storage.url(instance.resume_file.name)
+            # Get the file URL for processing
+            resume_url = request.build_absolute_uri(instance.resume_file.url)
             
-            # Parse the resume
+            # Parse the resume using the PyPDF2-based parser
             parsed_data = parse_resume(resume_url)
             
             # Convert Pydantic model to dictionary
-            resume_data_dict = parsed_data.dict() if hasattr(parsed_data, 'dict') else parsed_data.model_dump()
+            resume_data_dict = parsed_data.model_dump() if hasattr(parsed_data, 'model_dump') else parsed_data.dict()
             
             # Update the resume record with the parsed data
             instance.resume_data = resume_data_dict
