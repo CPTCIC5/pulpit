@@ -125,18 +125,24 @@ def extract_structured_data(text):
     client = OpenAI()
     
     system_prompt = """
-    You are a specialized resume parser. Extract structured information from the resume text provided.
-    Follow these guidelines:
-    1. Extract all personal information including name, contact details, and online profiles
-    2. For LinkedIn or GitHub, extract the complete URL if available, otherwise just the username
-    3. Normalize technical terms consistently (e.g., 'MySQL' not 'MYSQL')
-    4. Extract all educational qualifications with institution names and relevant courses
-    5. Extract all skills mentioned throughout the resume
-    6. Extract work experience including company, job title, duration, and key responsibilities
-    7. Extract any projects with skills used and descriptions
-    8. For missing fields, use '-' as placeholder
-    9. Be thorough and extract all information present in the resume
-    """
+                        You are a professional resume parser. Your job is to extract structured information from resume text with a high degree of accuracy and completeness.
+
+                        Instructions:
+                        1. Extract only information explicitly stated in the resume. Do not assume or invent details.
+                        2. If information is missing, use "-" as a placeholder.
+                        3. Capture:
+                        - Personal info: name, email, phone, LinkedIn, GitHub, website (if mentioned).
+                        - Education: title, description, institution, dates.
+                        - Skills: list all mentioned, estimate proficiency level if clearly stated (1–5), else skip level or use 3 (moderate).
+                        - Work experience: company name, role, duration, responsibilities.
+                        - Projects: title, technologies used, and short descriptions.
+                        - Awards, references, publications: if any.
+
+                        Guidelines:
+                        - Normalize tech terms (e.g., React.js, PostgreSQL).
+                        - Be concise and structured.
+                        - If some fields like GitHub/LinkedIn aren't URLs but are mentioned (e.g., “github.com/jeby”), include them as-is.
+                    """
     
     completion = client.beta.chat.completions.parse(
         model="gpt-4o-2024-08-06",
@@ -145,6 +151,7 @@ def extract_structured_data(text):
             {"role": "user", "content": "Extract structured information from this resume text: " + text},
         ],
         response_format=ProfessionalProfile,
+        temperature=0.4
     )
     
     return completion.choices[0].message.parsed
