@@ -19,7 +19,7 @@ class ResumeSerializer(serializers.ModelSerializer):
     get_all_notes= NoteSerializer(many=True)
     class Meta:
         model= Resume
-        fields= ['id', 'user', 'title', 'slug', 'resume_file', 'resume_data', 'get_all_notes', 'created_at', 'template_type', 'views']
+        fields= ['id', 'user', 'title', 'slug', 'resume_file', 'resume_data', 'get_all_notes', 'created_at', 'template_type', 'views', 'summary', 'contact', 'experience', 'education', 'references', 'awards', 'publications']
 
 
 

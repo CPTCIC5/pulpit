@@ -142,7 +142,7 @@ def extract_structured_data(text):
                         Guidelines:
                         - Normalize tech terms (e.g., React.js, PostgreSQL).
                         - Be concise and structured.
-                        - If some fields like GitHub/LinkedIn aren't URLs but are mentioned (e.g., “github.com/jeby”), include them as-is.
+                        - If some fields like GitHub/LinkedIn aren't URLs but are mentioned (e.g., "github.com/jeby"), include them as-is.
                     """
     
     completion = client.beta.chat.completions.parse(
@@ -152,12 +152,12 @@ def extract_structured_data(text):
             {"role": "user", "content": "Extract structured information from this resume text: " + text},
         ],
         response_format=ProfessionalProfile,
-        temperature=0.4
+        
     )
     
     return completion.choices[0].message.parsed
 
-def parse_resume(resume_url):
+def parse_resume(resume_url, resume_id=None):
     """Parse a resume from a URL."""
     print(f"Parsing resume from URL: {resume_url}")
     
@@ -167,7 +167,28 @@ def parse_resume(resume_url):
         
         # Extract structured data from text
         structured_data = extract_structured_data(text)
+        #print(structured_data)
         
+        # If resume_id is provided, update the specific fields in the Resume model
+        if resume_id:
+            from .models import Resume
+            from django.shortcuts import get_object_or_404
+            
+            resume = get_object_or_404(Resume, id=resume_id)
+            
+            # Map structured data to specific Resume model fields
+            resume.summary = structured_data.personal_info.summary
+            print(resume.summary)
+            resume.contact = structured_data.personal_info.model_dump()
+            resume.experience = [exp.model_dump() for exp in structured_data.work_experience]
+            print(resume.experience)
+            resume.education = [edu.model_dump() for edu in structured_data.education]
+            resume.references = [ref.model_dump() for ref in structured_data.references]
+            resume.awards = [award.model_dump() for award in structured_data.awards]
+            resume.publications = [pub.model_dump() for pub in structured_data.publications]
+            # Save the changes
+            resume.save()
+            print(Resume.objects.get(id=resume.id).summary)
         return structured_data
         
     except Exception as e:

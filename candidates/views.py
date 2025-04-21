@@ -85,8 +85,8 @@ class ResumeViewSet(viewsets.ModelViewSet):
             # Get the file URL for processing
             resume_url = request.build_absolute_uri(instance.resume_file.url)
             
-            # Parse the resume using the PyPDF2-based parser
-            parsed_data = parse_resume(resume_url)
+            # Parse the resume using the PyPDF2-based parser and pass the resume ID
+            parsed_data = parse_resume(resume_url, resume_id=instance.id)
             
             # Convert Pydantic model to dictionary
             resume_data_dict = parsed_data.model_dump() if hasattr(parsed_data, 'model_dump') else parsed_data.dict()
